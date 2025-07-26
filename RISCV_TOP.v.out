@@ -1,0 +1,85 @@
+#! /c/Source/iverilog-install/bin/vvp
+:ivl_version "12.0 (devel)" "(s20150603-1539-g2693dd32b)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "C:\iverilog\lib\ivl\system.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_sys.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_textio.vpi";
+:vpi_module "C:\iverilog\lib\ivl\v2005_math.vpi";
+:vpi_module "C:\iverilog\lib\ivl\va_math.vpi";
+S_000002cf9fdadac0 .scope module, "RISCV_TOP" "RISCV_TOP" 2 3;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "clk";
+    .port_info 1 /INPUT 1 "reset";
+o000002cf9fe67188 .functor BUFZ 1, C4<z>; HiZ drive
+v000002cf9fe64380_0 .net "clk", 0 0, o000002cf9fe67188;  0 drivers
+v000002cf9fe64420_0 .net "instructionTop", 31 0, v000002cf9fe641a0_0;  1 drivers
+o000002cf9fe67098 .functor BUFZ 1, C4<z>; HiZ drive
+v000002cf9fe644c0_0 .net "reset", 0 0, o000002cf9fe67098;  0 drivers
+S_000002cf9fdadc50 .scope module, "Instruction_Memory" "Instruction_Memory" 2 15, 3 1 0, S_000002cf9fdadac0;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "reset";
+    .port_info 1 /INPUT 32 "read_address";
+    .port_info 2 /OUTPUT 32 "instruction_out";
+L_000002cf9fe66810 .functor BUFZ 32, L_000002cf9fe64560, C4<00000000000000000000000000000000>, C4<00000000000000000000000000000000>, C4<00000000000000000000000000000000>;
+v000002cf9fdadde0 .array "Memory", 0 63, 31 0;
+v000002cf9fdade80_0 .net *"_ivl_0", 31 0, L_000002cf9fe64560;  1 drivers
+v000002cf9fe32870_0 .net "instruction_out", 31 0, L_000002cf9fe66810;  1 drivers
+v000002cf9fe32910_0 .var/i "k", 31 0;
+v000002cf9fe329b0_0 .net "read_address", 31 0, v000002cf9fe641a0_0;  alias, 1 drivers
+v000002cf9fe32a50_0 .net "reset", 0 0, o000002cf9fe67098;  alias, 0 drivers
+E_000002cf9fdaafb0 .event posedge, v000002cf9fe32a50_0;
+L_000002cf9fe64560 .array/port v000002cf9fdadde0, v000002cf9fe641a0_0;
+S_000002cf9fe32af0 .scope module, "Program_Counter" "Program_Counter" 2 8, 4 1 0, S_000002cf9fdadac0;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "clk";
+    .port_info 1 /INPUT 1 "reset";
+    .port_info 2 /INPUT 32 "PC_in";
+    .port_info 3 /OUTPUT 32 "PC_out";
+o000002cf9fe67158 .functor BUFZ 32, C4<zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz>; HiZ drive
+v000002cf9fe64100_0 .net "PC_in", 31 0, o000002cf9fe67158;  0 drivers
+v000002cf9fe641a0_0 .var "PC_out", 31 0;
+v000002cf9fe64240_0 .net "clk", 0 0, o000002cf9fe67188;  alias, 0 drivers
+v000002cf9fe642e0_0 .net "reset", 0 0, o000002cf9fe67098;  alias, 0 drivers
+E_000002cf9fdab8b0 .event posedge, v000002cf9fe64240_0;
+    .scope S_000002cf9fe32af0;
+T_0 ;
+    %wait E_000002cf9fdab8b0;
+    %load/vec4 v000002cf9fe642e0_0;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_0.0, 8;
+    %pushi/vec4 0, 0, 32;
+    %assign/vec4 v000002cf9fe641a0_0, 0;
+    %jmp T_0.1;
+T_0.0 ;
+    %load/vec4 v000002cf9fe64100_0;
+    %assign/vec4 v000002cf9fe641a0_0, 0;
+T_0.1 ;
+    %jmp T_0;
+    .thread T_0;
+    .scope S_000002cf9fdadc50;
+T_1 ;
+    %wait E_000002cf9fdaafb0;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000002cf9fe32910_0, 0, 32;
+T_1.0 ;
+    %load/vec4 v000002cf9fe32910_0;
+    %cmpi/s 64, 0, 32;
+    %jmp/0xz T_1.1, 5;
+    %pushi/vec4 0, 0, 32;
+    %ix/getv/s 4, v000002cf9fe32910_0;
+    %store/vec4a v000002cf9fdadde0, 4, 0;
+    %load/vec4 v000002cf9fe32910_0;
+    %addi 1, 0, 32;
+    %store/vec4 v000002cf9fe32910_0, 0, 32;
+    %jmp T_1.0;
+T_1.1 ;
+    %jmp T_1;
+    .thread T_1;
+# The file index is used to find the file name in the following table.
+:file_names 5;
+    "N/A";
+    "<interactive>";
+    "RISCV_TOP.v";
+    "./Instruction_Memory.v";
+    "./Program_Counter.v";
