@@ -5,11 +5,11 @@ module ALU_unit(
     output reg zero
 );
 
-always @(*) begin
+always @(Control_in or A or B) begin
     case (Control_in)
         4'b0000: ALU_Result = A & B;      // AND
         4'b0001: ALU_Result = A | B;      // OR
-        4'b0010: ALU_Result = A + B;      // ADD
+        4'b0010: ALU_Result <= A + B;      // ADD
         4'b0011: ALU_Result = A ^ B;      // XOR
         4'b0100: ALU_Result = (A < B) ? 1 : 0;  // SLT
         4'b0101: ALU_Result = A << B[4:0];     // SLL

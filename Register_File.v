@@ -73,5 +73,3 @@ assign read_data2 =Registers[Rs2];
 
 
 endmodule
-
-
