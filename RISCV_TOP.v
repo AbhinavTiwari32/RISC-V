@@ -9,16 +9,29 @@
 `include "Mux.v"
 `include "AND_logic.v"
 `include "Control_Unit.v"
-
+`include "IFID_Reg.v"
+`include "IDEXE_Reg.v"
+`include "EXMEM_Reg.v"
 
 module RISCV_TOP(
     input clk,reset 
 );
 
-wire [31:0] PC_top, instruction_Top,NextoPc_top,Sum_out_top,PCin_top,Rd1_top,Rd2_top,Memdata_top ,ALUresultTop,WriteBack_top,ImmExt_top,mux1_top,address_top;
+wire [31:0] PC_top, instruction_Top,NextoPc_top,EXSum_out_top,PCin_top,Rd1_top,Rd2_top,Memdata_top ,ALUresultTop,WriteBack_top,ImmExt_top,mux1_top,address_top;
 wire [3:0] control_top;
 wire RegWrite_top,MemWrite_top,MemRead_top,ALUSrc_top,zero_top,branch_top,sel2_top,MemtoReg_top;
+wire EXRegWrite_top,EXMemWrite_top,EXMemRead_top,EXALUSrc_top,EXbranch_top,EXMemtoReg_top;
+wire [1:0] EXALUOpTop;
+wire [31:0] EXPC_top,EXRd1_top,EXRd2_top,EXImmExt_top;
 wire [1:0] ALUOpTop;
+
+wire[2:0] EXfunc3_top;
+wire EXfunc7_top;
+wire [4:0] EXRd_top;
+
+wire [31:0] PCID_wire;
+
+wire [31:0] Instruction_ID;
 Program_Counter Program_Counter(
     .clk(clk),
     .reset(reset),
@@ -37,19 +50,19 @@ Instruction_Memory Inst_Memory(.clk(clk),
 
 Register_File Register_File(.clk(clk),
 .reset(reset),
-.Rs1(instruction_Top[19:15]), 
-.Rs2(instruction_Top[24:20]),
-.Rd(instruction_Top[11:7]),
+.Rs1(Instruction_ID[19:15]), 
+.Rs2(Instruction_ID[24:20]),
+.Rd(Instruction_ID[11:7]),
 .Write_data(WriteBack_top),
 .RegWrite(RegWrite_top),
 .read_data1(Rd1_top),
 .read_data2(Rd2_top)
 );
-ImmGen ImmGen(.Opcode(instruction_Top[6:0]),
-.instruction(instruction_Top),
+ImmGen ImmGen(.Opcode(Instruction_ID[6:0]),
+.instruction(Instruction_ID),
 .ImmExt(ImmExt_top));
 
-ALU_unit ALU_unit(.A(Rd1_top),
+ALU_unit ALU_unit(.A(EXRd1_top),
 .B(mux1_top),
 .zero(zero_top),
 .Control_in(control_top),
@@ -64,12 +77,12 @@ Data_Memory Data_Memory(.clk(clk),
 .Write_data(Rd2_top),
 .MemData_out(Memdata_top));
 
-ALU_Control ALU_Control(.ALUOp(ALUOpTop),
-.fun7(instruction_Top[30]),
-.fun3(instruction_Top[14:12]),
+ALU_Control ALU_Control(.ALUOp(EXALUOpTop),
+.fun7(EXfunc7_top),
+.fun3(EXfunc3_top),
 .Control_out(control_top));
 
-Control_Unit Control_Unit(.instruction(instruction_Top[6:0]),
+Control_Unit Control_Unit(.instruction(Instruction_ID[6:0]),
 .Branch(branch_top),
 .MemRead(MemRead_top),
 .MemtoReg(MemtoReg_top),
@@ -79,28 +92,75 @@ Control_Unit Control_Unit(.instruction(instruction_Top[6:0]),
 .RegWrite(RegWrite_top),
 .ALUOp(ALUOpTop));
 
-Mux1 ALU_mux(.sel1(ALUSrc_top),
-.A1(Rd2_top),
-.B1(ImmExt_top),
+Mux1 ALU_mux(.sel1(EXALUSrc_top),
+.A1(EXRd2_top),
+.B1(EXImmExt_top),
 .Mux1_out(mux1_top));
 
 AND_logic AND(.branch(branch_top),
 .zero(zero_top),
 .and_out(sel2_top));
 
-Adder Adder(.in_1(PC_top),
-.in_2(ImmExt_top),
-.Sum_out(Sum_out_top));
+Adder Adder(.in_1(EXPC_top),
+.in_2(EXImmExt_top),
+.Sum_out(EXSum_out_top));
 
-Mux2 Adder_mux(.sel2(sel2_top),
-.A2(NextoPc_top),
-.B2(Sum_out_top),
-.Mux2_out(PCin_top));
+// Mux2 Adder_mux(.sel2(sel2_top),
+// .A2(NextoPc_top),
+// .B2(Sum_out_top),
+// .Mux2_out(PCin_top));
 
 Mux3 Memory_mux(.sel3(MemtoReg_top),
 .A3(address_top),
 .B3(Memdata_top),
 .Mux3_out(WriteBack_top));
+
+IFID_Reg IFID_Reg(
+    .clk(clk),
+    .rst(reset),
+    .IFPCin(PCin_top),
+    .IFProgMem_in(instruction_Top),
+    .IDPCout(PCID_wire),
+    .IDProgMem_out(Instruction_ID));
+
+IDEXE_Reg IDEXE_Reg(.clk(clk), .rst(reset),
+ .IDALUSrc_in(ALUSrc_top), .IDMemtoReg_in(MemtoReg_top), .IDRegWrite_in(RegWrite_top), .IDMemRead_in(MemRead_top), .IDMemWrite_in(MemWrite_top), .IDBranch_in(branch_top), 
+ .IDALUOp_in(ALUOpTop),
+ .IDPC_in(PCID_wire),
+ .IDRd1_in(Rd1_top),
+ .IDRd2_in(Rd2_top),
+
+ .IDImmGen_in(ImmExt_top),
+.IDfunc3_in(Instruction_ID[14:12]),
+.IDfunc7_in(Instruction_ID[30]),
+.IDRd_in(Instruction_ID[11:7]),
+
+ .EXEALUSrc_out(EXALUSrc_top),
+  .EXEMemtoReg_out(EXMemtoReg_top), 
+  .EXERegWrite_out(EXRegWrite_top), 
+  .EXEMemRead_out(EXMemRead_top), 
+  .EXEMemWrite_out(EXMemWrite_top), 
+  .EXEBranch_out(EXbranch_top), 
+
+.EXEALUOp_out(EXALUOpTop),
+ .EXEPC_out(EXPC_top),
+ .EXERd1_out(EXRd1_top),
+ .EXERd2_out(EXRd2_top),
+ .EXEImmGen_out(EXImmExt_top),
+.EXEfunc3_out(EXfunc3_top),
+.EXEfunc7_out(EXfunc7_top),
+ .EXERd_out(EXRd_top));
+
+ EXMEM_Reg EXMEM_Reg( .clk(clk),
+ .rst(reset), .EXMemtoReg_in(EXMemtoReg_top), .EXRegWrite_in(EXRegWrite_top), .EXMemRead_in(EXMemRead_top), .EXMemWrite_in(EXMemWrite_top), .EXBranch_in(EXbranch_top),
+ .EXADD_in(EXSum_out_top),.EXALURes_in(address_top),
+.EXRd2_in(EXRd2_top), .EXRd_in(EXRd_top),
+.EXZero_in(zero_top),
+ .MEMMemtoReg_out(), .MEMRegWrite_out(), .MEMMemRead_out(), .MEMMemWrite_out(), .MEMBranch_out(),
+ .MEMADD_out(),.MEMALURes_out(),
+ .MEMRd2_out(), .MEMRd_out(),
+ .MEMZero_out());
+
 
 
 
