@@ -1,0 +1,79 @@
+#! /c/Source/iverilog-install/bin/vvp
+:ivl_version "12.0 (devel)" "(s20150603-1539-g2693dd32b)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "C:\iverilog\lib\ivl\system.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_sys.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_textio.vpi";
+:vpi_module "C:\iverilog\lib\ivl\v2005_math.vpi";
+:vpi_module "C:\iverilog\lib\ivl\va_math.vpi";
+S_000002b139242df0 .scope module, "MEMWB_Reg" "MEMWB_Reg" 2 1;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "clk";
+    .port_info 1 /INPUT 1 "rst";
+    .port_info 2 /INPUT 1 "MEMMemtoReg_in";
+    .port_info 3 /INPUT 1 "MEMRegWrite_in";
+    .port_info 4 /INPUT 32 "MEMReadData_in";
+    .port_info 5 /INPUT 32 "MEMALURes_in";
+    .port_info 6 /INPUT 5 "MEMRd_in";
+    .port_info 7 /OUTPUT 1 "WBMemtoReg_out";
+    .port_info 8 /OUTPUT 1 "WBRegWrite_out";
+    .port_info 9 /OUTPUT 32 "WBReadData_out";
+    .port_info 10 /OUTPUT 32 "WBALURes_out";
+    .port_info 11 /OUTPUT 5 "WBRd_out";
+o000002b139276fd8 .functor BUFZ 32, C4<zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz>; HiZ drive
+v000002b139243340_0 .net "MEMALURes_in", 31 0, o000002b139276fd8;  0 drivers
+o000002b139277008 .functor BUFZ 1, C4<z>; HiZ drive
+v000002b139243050_0 .net "MEMMemtoReg_in", 0 0, o000002b139277008;  0 drivers
+o000002b139277038 .functor BUFZ 5, C4<zzzzz>; HiZ drive
+v000002b1392bbc40_0 .net "MEMRd_in", 4 0, o000002b139277038;  0 drivers
+o000002b139277068 .functor BUFZ 32, C4<zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz>; HiZ drive
+v000002b1392bbce0_0 .net "MEMReadData_in", 31 0, o000002b139277068;  0 drivers
+o000002b139277098 .functor BUFZ 1, C4<z>; HiZ drive
+v000002b1392bbd80_0 .net "MEMRegWrite_in", 0 0, o000002b139277098;  0 drivers
+v000002b1392bbe20_0 .var "WBALURes_out", 31 0;
+v000002b1392bbec0_0 .var "WBMemtoReg_out", 0 0;
+v000002b139274500_0 .var "WBRd_out", 4 0;
+v000002b1392745a0_0 .var "WBReadData_out", 31 0;
+v000002b139274640_0 .var "WBRegWrite_out", 0 0;
+o000002b1392771b8 .functor BUFZ 1, C4<z>; HiZ drive
+v000002b1392746e0_0 .net "clk", 0 0, o000002b1392771b8;  0 drivers
+o000002b1392771e8 .functor BUFZ 1, C4<z>; HiZ drive
+v000002b139274780_0 .net "rst", 0 0, o000002b1392771e8;  0 drivers
+E_000002b13922cd20 .event posedge, v000002b139274780_0, v000002b1392746e0_0;
+    .scope S_000002b139242df0;
+T_0 ;
+    %wait E_000002b13922cd20;
+    %load/vec4 v000002b139274780_0;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_0.0, 8;
+    %pushi/vec4 0, 0, 1;
+    %assign/vec4 v000002b1392bbec0_0, 0;
+    %pushi/vec4 0, 0, 1;
+    %assign/vec4 v000002b139274640_0, 0;
+    %pushi/vec4 0, 0, 32;
+    %assign/vec4 v000002b1392745a0_0, 0;
+    %pushi/vec4 0, 0, 32;
+    %assign/vec4 v000002b1392bbe20_0, 0;
+    %pushi/vec4 0, 0, 5;
+    %assign/vec4 v000002b139274500_0, 0;
+    %jmp T_0.1;
+T_0.0 ;
+    %load/vec4 v000002b139243050_0;
+    %assign/vec4 v000002b1392bbec0_0, 0;
+    %load/vec4 v000002b1392bbd80_0;
+    %assign/vec4 v000002b139274640_0, 0;
+    %load/vec4 v000002b1392bbce0_0;
+    %assign/vec4 v000002b1392745a0_0, 0;
+    %load/vec4 v000002b139243340_0;
+    %assign/vec4 v000002b1392bbe20_0, 0;
+    %load/vec4 v000002b1392bbc40_0;
+    %assign/vec4 v000002b139274500_0, 0;
+T_0.1 ;
+    %jmp T_0;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "MEMWB_Reg.v";
